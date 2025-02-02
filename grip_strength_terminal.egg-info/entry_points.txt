@@ -1,0 +1,2 @@
+[console_scripts]
+grip-terminal = grip_strength_terminal.main:main
