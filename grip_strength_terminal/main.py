@@ -3,7 +3,7 @@ from grip_strength_terminal.data_handler import log_data, read_data
 from grip_strength_terminal.blockchain_interaction import submit_data
 from grip_strength_terminal.leaderboard import display_leaderboard
 from grip_strength_terminal.spirit_animal import select_spirit_animal
-from grip_strength_terminal.ascii_art import display_welcome_screen
+from grip_strength_terminal.art import display_welcome_screen
 
 def main():
     while True:
