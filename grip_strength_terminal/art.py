@@ -14,15 +14,26 @@ def display_welcome_screen():
     # title = pyfiglet.figlet_format("TELLOR LONGEVITY CHALLENGE", font="standard")
     # colored_title = '\n'.join([colored(line, "green", attrs=["bold"]) for line in title.split('\n')])
     title = """
-    ______)                    _                               )   ___                            
-   (, /     /) /)          ___/__)                ,           (__/_____) /)     /) /)             
-     /   _ // // ____     (, /   ____  _   _ _ _   _/_          /       (/  _  // //  _ __  _   _ 
-  ) /  _(/(/_(/_(_/ (_      /   (_)/ ((_/_(/_(/__(_(__(_/_     /        / )(_((/_(/__(/_/ ((_/_(/_
- (_/                       (_____    .-/             .-/      (______)                    .-/     
-                                  ) (_/             (_/                                  (_/      
+
+  ______     ____              __                                      
+ /_  __/__  / / /___  _____   / /   ____ ___  _____  _____             
+  / / / _ \/ / / __ \/ ___/  / /   / __ `/ / / / _ \/ ___/             
+ / / /  __/ / / /_/ / /     / /___/ /_/ / /_/ /  __/ /                 
+/_/  \___/_/_/\____/_/     /_____/\__,_/\__, /\___/_/    __  __        
+   ____ ______(_)___     _____/ /______/____/___  ____ _/ /_/ /_       
+  / __ `/ ___/ / __ \   / ___/ __/ ___/ _ \/ __ \/ __ `/ __/ __ \      
+ / /_/ / /  / / /_/ /  (__  ) /_/ /  /  __/ / / / /_/ / /_/ / / /      
+ \__, /_/  /_/ .___/  /____/\__/_/   \___/_/ /_/\__, /\__/_/ /_/       
+/____/      /_/         __     __              /____/  _             __
+   (_)___  ____  __  __/ /_   / /____  _________ ___  (_)___  ____ _/ /
+  / / __ \/ __ \/ / / / __/  / __/ _ \/ ___/ __ `__ \/ / __ \/ __ `/ / 
+ / / / / / /_/ / /_/ / /_   / /_/  __/ /  / / / / / / / / / / /_/ / /  
+/_/_/ /_/ .___/\__,_/\__/   \__/\___/_/  /_/ /_/ /_/_/_/ /_/\__,_/_/   
+       /_/                                                             
+
     """
 
-    colored_title = '\n'.join([colored(line, "green", attrs=["bold"]) for line in title.split('\n')])
+    colored_title = f"[bold green]{title}[/bold green]"
 
     # Create menu options with boxing
     menu = """
@@ -30,14 +41,14 @@ def display_welcome_screen():
     ALL INPUTS ARE OPTIONAL.
     NO NEED TO GET OUT YOUR PHONE 😉
 
-    [1] 💪 Enter Your Grip Strength
-    [2] 🏆 View Leaderboard
+    [1] 💪 Report Your Grip Strength to Tellor Layer
+    [2] 🏆 View the Leaderboard
     """
     
-    colored_menu = '\n'.join([colored(line, "green", attrs=["bold"]) for line in menu.split('\n')])
+    colored_menu = f"[bold green]{menu}[/bold green]"
 
-    console.print(Panel(colored_title, title="Welcome!", border_style="cyan"))
-    console.print(Panel(colored_menu, title="Menu Options", border_style="green"))
+    console.print(Panel(colored_title, title="WELCOME TO THE", border_style="cyan"))
+    console.print(Panel(colored_menu, title="OPTIONS", border_style="green"))
     
 def display_loading_animation():
     with console.status("[bold green]Processing your submission...") as status:

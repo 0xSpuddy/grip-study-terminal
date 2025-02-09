@@ -2,7 +2,8 @@ LICENSE
 README.md
 setup.py
 grip_strength_terminal/__init__.py
-grip_strength_terminal/ascii_art.py
+grip_strength_terminal/animal_engine.py
+grip_strength_terminal/art.py
 grip_strength_terminal/blockchain_interaction.py
 grip_strength_terminal/data_handler.py
 grip_strength_terminal/leaderboard.py

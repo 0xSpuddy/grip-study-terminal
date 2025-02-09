@@ -3,6 +3,9 @@ import hashlib
 from rich.console import Console
 from rich import box
 from rich.panel import Panel
+import ascii_magic
+from PIL import Image
+from .animal_engine import generate_and_convert_to_ascii
 
 # Get the directory of this file
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -12,63 +15,79 @@ IMAGES_DIR = os.path.join(PROJECT_ROOT, 'images')
 
 console = Console()
 
+# Define the selection lists
+ANIMALS = ['crab', 'clam', 'tortoise', 'cockatoo', 'jellyfish', 'pondo']
+SEEDS = list(range(11, 50))  # Creates a list of integers from 11 to 49
+ANIMAL_BACKGROUNDS = ['cityscape', 'beach', 'sunset', 'mountains']
+
 # Default ASCII art in case no files are found
 DEFAULT_ANIMAL = """
              _.-````'-,_
    _,.,_ ,-'`           `'-.,_
  /)     (\                   '``-.
-((      ) )                      `\
- \)    (_/                        )\
-  |       /)           '    ,'    / \
+((      ) )                      `
+ \)    (_/                        )
+  |       /)           '    ,'    / 
   `\    ^'            '     (    /  ))
     |      _/\ ,     /    ,,`\   (  "`
-     \Y,   |  \  \  | ````| / \_ \
+     \Y,   |  \  \  | ````| / \_ 
        `)_/    \  \  )    ( >  ( >
                 \( \(     |/   |/
     mic & dwb  /_(/_(    /_(  /_(
 """
 
-def ensure_images_dir_exists():
-    # Create images directory if it doesn't exist
-    if not os.path.exists(IMAGES_DIR):
-        os.makedirs(IMAGES_DIR)
-        # Optionally create a default animal file
-        with open(os.path.join(IMAGES_DIR, 'cat.txt'), 'w') as f:
-            f.write(DEFAULT_ANIMAL)
+# def ensure_images_dir_exists():
+#     # Create images directory if it doesn't exist
+#     if not os.path.exists(IMAGES_DIR):
+#         os.makedirs(IMAGES_DIR)
+#         # Optionally create a default animal file
+#         with open(os.path.join(IMAGES_DIR, 'cat.txt'), 'w') as f:
+#             f.write(DEFAULT_ANIMAL)
+
+def image_to_ascii(image_path, columns=140):
+    """Convert an image file to ASCII art"""
+    output = ascii_magic.AsciiArt.from_image(image_path)
+    ascii_str = output.to_ascii(columns=columns)
+    # Escape the ASCII art to prevent Rich from interpreting backslashes
+    return f"```\n{ascii_str}\n```"
+
+def get_random_selections(transaction_hash):
+    """Use transaction hash to generate three random selections"""
+    # Create three different hashes from the transaction hash
+    hash1 = hashlib.sha256(f"{transaction_hash}-1".encode()).digest()
+    hash2 = hashlib.sha256(f"{transaction_hash}-2".encode()).digest()
+    hash3 = hashlib.sha256(f"{transaction_hash}-3".encode()).digest()
+    
+    # Convert each hash to an integer and use modulo to select from lists
+    animal_index = int.from_bytes(hash1[:8], 'big') % len(ANIMALS)
+    seed_index = int.from_bytes(hash2[:8], 'big') % len(SEEDS)
+    background_index = int.from_bytes(hash3[:8], 'big') % len(ANIMAL_BACKGROUNDS)
+    
+    return (
+        ANIMALS[animal_index],
+        SEEDS[seed_index],
+        ANIMAL_BACKGROUNDS[background_index]
+    )
 
 def select_spirit_animal(transaction_hash):
-    ensure_images_dir_exists()
+    # Get random selections based on transaction hash
+    animal, seed, background = get_random_selections(transaction_hash)
     
-    # Get list of available animal files
-    animal_files = [f for f in os.listdir(IMAGES_DIR) if f.endswith('.txt')]
+    # Generate the prompt for the AI
+    prompt = f"futuristic Pixelart of a anthropomorphic {animal} with large squeezing fists with background {background}, cyberpunk Macabre at night, Hard Light"
     
-    # If no animal files found, use default
-    if not animal_files:
-        console.print(Panel(
-            f"[bold cyan]Your Spirit Animal is: Cat[/bold cyan]\n\n{DEFAULT_ANIMAL}",
-            title="🐾 Spirit Animal Revealed 🐾",
-            border_style="cyan",
-            box=box.DOUBLE
-        ))
-        return "Bufficorn (error lmao)"
+    # Generate the ASCII art
+    ascii_art = generate_and_convert_to_ascii(prompt)
+    print(ascii_art)
     
-    # Use the first 8 bytes of the transaction hash to select an animal
-    hash_bytes = hashlib.sha256(transaction_hash.encode()).digest()
-    index = int.from_bytes(hash_bytes[:8], 'big') % len(animal_files)
-    chosen_animal = animal_files[index]
+    # Create a formatted description of the spirit animal
+    description = f"Animal: {animal.title()}\nBackground: {background.title()}\nSeed: {seed}"
     
-    # Get animal name from filename (assuming format: "animal_name.txt")
-    animal_name = chosen_animal.replace('.txt', '').replace('_', ' ').title()
-    
-    # Read and display the ASCII art
-    with open(os.path.join(IMAGES_DIR, chosen_animal), 'r') as file:
-        art = file.read()
-        
     console.print(Panel(
-        f"[bold cyan]Your Spirit Animal is: {animal_name}[/bold cyan]\n\n{art}",
+        f"[bold cyan]Your Spirit Animal Details:[/bold cyan]\n\n{description}",
         title="🐾 Spirit Animal Revealed 🐾",
         border_style="cyan",
         box=box.DOUBLE
     ))
-    
-    return animal_name
+
+    return animal
