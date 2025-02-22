@@ -11,8 +11,8 @@ def display_welcome_screen():
     os.system('cls' if os.name == 'nt' else 'clear')  # 'cls' for Windows, 'clear' for Unix/Linux/MacOS
     
     # Create a fancy title
-    # title = pyfiglet.figlet_format("TELLOR LONGEVITY CHALLENGE", font="standard")
-    # colored_title = '\n'.join([colored(line, "green", attrs=["bold"]) for line in title.split('\n')])
+    title = pyfiglet.figlet_format("TELLOR LONGEVITY CHALLENGE", font="standard")
+    colored_title = '\n'.join([colored(line, "green", attrs=["bold"]) for line in title.split('\n')])
     title = """
 
   ______     ____              __                                      

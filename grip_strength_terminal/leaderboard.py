@@ -29,7 +29,7 @@ def display_leaderboard():
     table.add_column("Gender", justify="center")
     
     for i, entry in enumerate(leaderboard, 1):
-        m_f = "M" if entry[0].lower() == "true" else "F"
+        data_set = "M" if entry[0].lower() == "true" else "F"
         total_strength = int(entry[1]) + int(entry[2])
         
         table.add_row(
@@ -39,7 +39,7 @@ def display_leaderboard():
             str(total_strength),
             entry[1],  # Right hand
             entry[2],  # Left hand
-            m_f
+            data_set
         )
     
     console.print(table)
