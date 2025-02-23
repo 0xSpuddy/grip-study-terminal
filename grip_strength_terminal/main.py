@@ -51,9 +51,7 @@ async def async_main():
             reporter = GripStrengthReporter([grip_data_value], endpoint, account)
             # Submit data to blockchain
             tip_tx_hash, tip_tx_status = await reporter.tip_grip_query(datafeed=datafeed)
-            print(f"tip_tx_hash: {tip_tx_hash}")
             report_tx_hash, report_tx_status = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
-            print(f"report_tx_hash: {report_tx_hash}")
             
             # Log data using tip transaction hash
             log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep, tip_tx_hash)

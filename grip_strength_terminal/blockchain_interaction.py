@@ -112,7 +112,7 @@ class GripStrengthReporter:
                 return tx_info
             except Exception as e:
                 if "tx not found" in str(e):
-                    print("tx not found, retrying...")
+                    print("reporting...")
                     await asyncio.sleep(1)
                     continue
                 else:
@@ -127,12 +127,13 @@ async def fetch_txs_info(self, response) -> Optional[dict]:
             return tx_info
         except Exception as e:
             if "tx not found" in str(e):
-                print("tx not found, retrying...")
+                print("reporting...")
                 await asyncio.sleep(1)
                 continue
             else:
-                # TODO: Handle other potential exceptions
                 raise e
+    transaction_hash = response.txhash
+    print(f"transaction_hash: {transaction_hash}")
     return transaction_hash
 
 # Make it a standalone function
