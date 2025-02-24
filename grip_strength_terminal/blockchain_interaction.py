@@ -5,6 +5,7 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import List
+import os
 from chained_accounts import ChainedAccount
 from telliot_core.apps.core import RPCEndpoint
 from telliot_core.utils.response import error_status
@@ -15,7 +16,7 @@ from chained_accounts import ChainedAccount
 
 from telliot_feeds.datafeed import DataFeed
 from telliot_feeds.feeds import CATALOG_FEEDS
-from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTest
+from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTester
 from telliot_feeds.reporters.layer.client import LCDClient
 from telliot_feeds.reporters.layer.msg_submit_value import MsgSubmitValue
 from telliot_feeds.reporters.layer.msg_tip import MsgTip
@@ -25,14 +26,20 @@ from telliot_feeds.datasource import DataSource
 from telliot_feeds.utils.log import get_logger
 from telliot_feeds.utils.query_search_utils import feed_from_catalog_feeds
 from telliot_feeds.utils.reporter_utils import is_online
+from grip_strength_terminal.loading_animation import LoadingSpiral
 
 logger = get_logger(__name__)
+
+def clear_terminal():
+    # Clear screen command for different operating systems
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 class GripStrengthData:
     def __init__(self, data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep):
         self.data_set = data_set
-        self.right_hand = right_hand
-        self.left_hand = left_hand
+        # Convert grip strength values to floats and add 18 decimal places
+        self.right_hand = int(float(right_hand) * (10 ** 18))  # Convert to Wei-like precision
+        self.left_hand = int(float(left_hand) * (10 ** 18))    # Convert to Wei-like precision
         self.x_handle = x_handle
         self.github_username = github_username
         self.hours_of_sleep = hours_of_sleep
@@ -88,6 +95,9 @@ class GripStrengthReporter:
         try:
             # Pass the list directly as the value
             value = datafeed.query.value_type.encode(grip_data)
+            print(f"value: {value}")
+            print(f"grip_data: {[str(data) for data in grip_data]}")  # Debug print
+            await asyncio.sleep(5)
             wallet = self.client.wallet(RawKey(self.account.local_account.key))
             msg = MsgSubmitValue(
                 creator=wallet.key.acc_address,
@@ -106,18 +116,26 @@ class GripStrengthReporter:
             return None, error_status(msg, e=e, log=logger.error)
 
     async def fetch_tx_info(self, response) -> Optional[dict]:
-        for _ in range(10):
-            try:
-                tx_info = await self.client._get(f"/cosmos/tx/v1beta1/txs/{response.txhash}")
-                return tx_info
-            except Exception as e:
-                if "tx not found" in str(e):
-                    print("reporting...")
-                    await asyncio.sleep(1)
-                    continue
-                else:
-                    raise e
-        return None
+        loading = LoadingSpiral()
+        try:
+            for _ in range(10):
+                try:
+                    tx_info = await self.client._get(f"/cosmos/tx/v1beta1/txs/{response.txhash}")
+                    loading.clear_terminal()  # Clear the animation when done
+                    return tx_info
+                except Exception as e:
+                    if "tx not found" in str(e):
+                        loading.show_frame()
+                        await asyncio.sleep(1)
+                        continue
+                    else:
+                        loading.clear_terminal()  # Clear the animation on error
+                        raise e
+            loading.clear_terminal()  # Clear the animation when done
+            return None
+        except Exception as e:
+            loading.clear_terminal()  # Clear the animation on error
+            raise e
 
 # Get the current price of ETH
 async def fetch_txs_info(self, response) -> Optional[dict]:
@@ -140,7 +158,7 @@ async def fetch_txs_info(self, response) -> Optional[dict]:
 async def tip_grip_query(client, account, datafeed):
     try:
         datafeed = DataFeed(
-            query=EthDenverTest(challengeType="grip_strength_dynamometer"),
+            query=EthDenverTester(challengeType="grip_strength_dynamometer"),
             source=GripStrengthDataSource(),
         )
         wallet = client.wallet(RawKey(account.local_account.key))

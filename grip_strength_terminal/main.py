@@ -9,7 +9,7 @@ from telliot_core.apps.core import RPCEndpoint
 from chained_accounts import ChainedAccount
 from telliot_feeds.feeds import CATALOG_FEEDS
 from telliot_feeds.datafeed import DataFeed
-from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTest
+from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTester
 from grip_strength_terminal.blockchain_interaction import GripStrengthDataSource
 import os
 from rich.console import Console
@@ -29,10 +29,10 @@ async def async_main():
             data_set = input("Enter M/f data set (M/f): ")
             data_set = data_set.lower() if data_set else "true"  # Default to "true" if empty
             data_set = data_set == "true"  # Convert to boolean
-            right_hand = int(input("Enter right hand strength (pounds): "))
-            left_hand = int(input("Enter left hand strength (pounds): "))
-            x_handle = input("Enter Twitter username: ")
-            github_username = input("Enter GitHub username: ")
+            right_hand = float(input("Enter right hand strength (pounds): "))
+            left_hand = float(input("Enter left hand strength (pounds): "))
+            x_handle = input("Social Media Handle 1 (X username?)): ")
+            github_username = input("Social Media Handle 2 (GitHub username?)): ")
             hours_of_sleep = int(input("Enter hours of sleep: "))
             
             # Create GripStrengthData object
@@ -79,14 +79,14 @@ async def async_main():
                 await asyncio.sleep(2)
                 continue
 
-            q = EthDenverTest(challengeType="grip_strength_dynamometer")
+            q = EthDenverTester(challengeType="grip_strength_dynamometer")
             encoded_value = q.value_type.encode(grip_data_value)
             # print(f"submitValue (bytes): 0x{encoded_value.hex()}")
             endpoint = RPCEndpoint(url="http://tellorlayer.com:1317", network="layertest-3")
             account = ChainedAccount("telliot_layer")
             account.unlock("asdf")
             datafeed = DataFeed(
-                query=EthDenverTest(challengeType="grip_strength_dynamometer"),
+                query=EthDenverTester(challengeType="grip_strength_dynamometer"),
                 source=GripStrengthDataSource(encoded_value),
             )
             reporter = GripStrengthReporter([grip_data_value], endpoint, account)

@@ -15,8 +15,8 @@ def display_leaderboard():
     clear_terminal()
     
     data = read_data()
-    # Calculate total grip strength and sort
-    leaderboard = sorted(data, key=lambda x: int(x[1]) + int(x[2]), reverse=True)
+    # Convert string values to floats for sorting and display
+    leaderboard = sorted(data, key=lambda x: float(x[1]) + float(x[2]), reverse=True)
     
     table = Table(title="🏆 Grip Strength Leaderboard 🏆")
     
@@ -30,15 +30,18 @@ def display_leaderboard():
     
     for i, entry in enumerate(leaderboard, 1):
         data_set = "M" if entry[0].lower() == "true" else "F"
-        total_strength = int(entry[1]) + int(entry[2])
+        # Convert Wei-like values back to human-readable floats
+        right_hand = float(entry[1]) / (10 ** 18)
+        left_hand = float(entry[2]) / (10 ** 18)
+        total_strength = right_hand + left_hand
         
         table.add_row(
             f"#{i}",
             entry[3],  # Twitter
             entry[4],  # GitHub
-            str(total_strength),
-            entry[1],  # Right hand
-            entry[2],  # Left hand
+            f"{total_strength:.2f}",  # Format to 2 decimal places
+            f"{right_hand:.2f}",  # Format to 2 decimal places
+            f"{left_hand:.2f}",  # Format to 2 decimal places
             data_set
         )
     

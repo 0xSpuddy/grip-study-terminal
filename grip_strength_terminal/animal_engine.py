@@ -15,7 +15,7 @@ stability_api = client.StabilityInference(
     verbose=True,
 )
 
-def generate_and_convert_to_ascii(prompt, width=160):
+def generate_and_convert_to_ascii(prompt, width=120):
     """
     Generate an image from a prompt and convert it to ASCII art
     

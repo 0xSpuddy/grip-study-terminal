@@ -22,9 +22,13 @@ def ensure_data_dir_exists():
 
 def log_data(m_f, right_hand, left_hand, twitter, github, sleep_hours, transaction_hash):
     ensure_data_dir_exists()
+    # Convert to Wei-like precision before storing
+    right_hand_wei = int(float(right_hand) * (10 ** 18))
+    left_hand_wei = int(float(left_hand) * (10 ** 18))
+    
     with open(LOG_FILE, mode='a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([m_f, right_hand, left_hand, twitter, github, sleep_hours, transaction_hash])
+        writer.writerow([m_f, right_hand_wei, left_hand_wei, twitter, github, sleep_hours, transaction_hash])
 
 def read_data():
     ensure_data_dir_exists()
