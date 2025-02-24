@@ -26,7 +26,7 @@ async def async_main():
         
         if choice == '1':
             # Collect user data
-            data_set = input("Enter M/f data set (True/False): ")
+            data_set = input("Enter M/f data set (M/f): ")
             data_set = data_set.lower() if data_set else "true"  # Default to "true" if empty
             data_set = data_set == "true"  # Convert to boolean
             right_hand = int(input("Enter right hand strength (pounds): "))
@@ -49,26 +49,33 @@ async def async_main():
             clear_terminal()
             console = Console()
             
-            table = Table(title="🏋️ Confirm Your Data 🏋️", box=box.ROUNDED)
-            table.add_column("Field", style="cyan")
+            # Get terminal height and calculate padding
+            terminal_height = os.get_terminal_size().lines
+            padding_top = (terminal_height - 12) // 2  # 12 is approximate table height
+            
+            # Add vertical padding
+            console.print("\n" * padding_top)
+            
+            table = Table(title="[green]🏋️ Confirm Your Data 🏋️[/green]", box=box.ROUNDED)
+            table.add_column("Field", style="green")
             table.add_column("Value", style="green")
             
             table.add_row("Dataset Type", "Male" if data_set else "Female")
             table.add_row("Right Hand", f"{right_hand} lbs")
             table.add_row("Left Hand", f"{left_hand} lbs")
-            table.add_row("Twitter Handle", x_handle)
-            table.add_row("GitHub Username", github_username)
+            table.add_row("X (or other social media) Handle", x_handle)
+            table.add_row("GitHub Username if applicable (can be anything)", github_username)
             table.add_row("Hours of Sleep", f"{hours_of_sleep}")
             
-            console.print(table)
-            console.print("\n[yellow]Press Enter within 10 seconds to confirm and submit your data...[/yellow]")
+            console.print(table, justify="center")
+            console.print("\n[green]Press Enter within 10 seconds to confirm and submit your data...[/green]", justify="center")
             
             # Wait for confirmation with timeout
             try:
                 await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input), timeout=10.0)
                 clear_terminal()
             except asyncio.TimeoutError:
-                console.print("[red]Timeout reached. Cancelling submission...[/red]")
+                console.print("[red]Timeout reached. Cancelling submission...[/red]", justify="center")
                 await asyncio.sleep(2)
                 continue
 
@@ -93,9 +100,9 @@ async def async_main():
             
             # Display spirit animal using tip transaction hash
             select_spirit_animal(report_tx_hash)
-            print("looks like it worked")
-            print(f"tip_tx: {tip_tx}")
-            print(f"report_tx: {report_tx}")
+            # print("looks like it worked")
+            # print(f"tip_tx: {tip_tx}")
+            # print(f"report_tx: {report_tx}")
             await asyncio.sleep(10)
         
         elif choice == '2':
