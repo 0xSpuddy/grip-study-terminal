@@ -63,7 +63,7 @@ async def send_to_discord(grip_data, tx_hash, spirit_animal, html_path):
 
             # Send both the message and file
             async with session.post(DISCORD_WEBHOOK_URL, data=file_data) as response:
-                if response.status == 204:
+                if 200 <= response.status < 400:  # Accept any 2xx or 3xx status code
                     print("Successfully sent data to Discord!")
                 else:
                     print(f"Failed to send data to Discord. Status: {response.status}")
