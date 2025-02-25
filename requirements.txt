@@ -68,7 +68,7 @@ simple-term-menu==1.5.2
 six==1.16.0
 stability-sdk==0.8.6
 telliot_core @ git+https://github.com/tellor-io/telliot-core.git@layer
-telliot_feeds @ git+https://github.com/tellor-io/telliot-feeds.git@booth-and-layer
+telliot_feeds @ git+https://github.com/tellor-io/telliot-feeds.git@booth-and-layer-test
 termcolor==2.5.0
 terra-proto==4.0.2
 terra-sdk==4.0.0
