@@ -26,14 +26,100 @@ async def async_main():
         
         if choice == '1':
             # Collect user data
-            data_set = input("Enter M/f data set (M/f): ")
-            data_set = data_set.lower() if data_set else "true"  # Default to "true" if empty
-            data_set = data_set == "true"  # Convert to boolean
-            right_hand = float(input("Enter right hand strength (pounds): "))
-            left_hand = float(input("Enter left hand strength (pounds): "))
-            x_handle = input("Social Media Handle 1 (X username?)): ")
-            github_username = input("Social Media Handle 2 (GitHub username?)): ")
-            hours_of_sleep = int(input("Enter hours of sleep: "))
+            clear_terminal()
+            print("""
+
+▗▖  ▗▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖     ▗▄▖ ▗▄▄▖     ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖
+▐▛▚▞▜▌▐▌   ▐▛▚▖▐▌▐▌       ▐▌ ▐▌▐▌ ▐▌    ▐▌ ▐▌▐▌ ▐▌▐▛▚▞▜▌▐▌   ▐▛▚▖▐▌▐▌   
+▐▌  ▐▌▐▛▀▀▘▐▌ ▝▜▌ ▝▀▚▖    ▐▌ ▐▌▐▛▀▚▖    ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▛▀▀▘▐▌ ▝▜▌ ▝▀▚▖
+▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘    ▝▚▄▞▘▐▌ ▐▌    ▐▙█▟▌▝▚▄▞▘▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘
+
+                  """)
+            data_set = input("Enter M/f data set (M/f): ").lower().strip()
+            
+            # Fuzzy matching for common variations
+            male_options = ['m', 'male', 'man', '1', 'true', 'yes']
+            female_options = ['f', 'female', 'woman', '0', 'false', 'no']
+            
+            while data_set not in male_options + female_options:
+                print("Please enter 'M' for male or 'F' for female.")
+                data_set = input("Enter M/f data set (M/f): ").lower().strip()
+            
+            data_set = data_set in male_options  # Convert to boolean (True for male, False for female)
+            # 1
+            # clear_terminal()
+            print("""
+
+▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▖ ▗▖▗▄▄▄▖    ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄     ▗▄▄▖ ▗▄▄▄▖ ▗▄▖ ▗▄▄▄ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖
+▐▌ ▐▌  █  ▐▌   ▐▌ ▐▌  █      ▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌  █    ▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌  █  █  ▐▛▚▖▐▌▐▌   
+▐▛▀▚▖  █  ▐▌▝▜▌▐▛▀▜▌  █      ▐▛▀▜▌▐▛▀▜▌▐▌ ▝▜▌▐▌  █    ▐▛▀▚▖▐▛▀▀▘▐▛▀▜▌▐▌  █  █  ▐▌ ▝▜▌▐▌▝▜▌
+▐▌ ▐▌▗▄█▄▖▝▚▄▞▘▐▌ ▐▌  █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▐▌  ▐▌▝▚▄▞▘
+                                                                                          
+            """)
+            while True:
+                try:
+                    right_hand = float(input("Enter right hand strength (pounds): "))
+                    if right_hand < 0:
+                        print("Please enter a positive number.")
+                        continue
+                    break
+                except ValueError:
+                    print("Please enter a valid number.")
+            print("""
+
+▗▖   ▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖    ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄     ▗▄▄▖ ▗▄▄▄▖ ▗▄▖ ▗▄▄▄ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖
+▐▌   ▐▌   ▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌  █    ▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌  █  █  ▐▛▚▖▐▌▐▌   
+▐▌   ▐▛▀▀▘▐▛▀▀▘  █      ▐▛▀▜▌▐▛▀▜▌▐▌ ▝▜▌▐▌  █    ▐▛▀▚▖▐▛▀▀▘▐▛▀▜▌▐▌  █  █  ▐▌ ▝▜▌▐▌▝▜▌
+▐▙▄▄▖▐▙▄▄▖▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▐▌  ▐▌▝▚▄▞▘
+                                                                                     
+            """)
+            while True:
+                try:
+                    left_hand = float(input("Enter left hand strength (pounds): "))
+                    if left_hand < 0:
+                        print("Please enter a positive number.")
+                        continue
+                    break
+                except ValueError:
+                    print("Please enter a valid number.")
+            print("""
+
+ ▗▄▄▖ ▗▄▖  ▗▄▄▖▗▄▄▄▖ ▗▄▖ ▗▖    ▗▄▄▖    ▗▄▄▄▖ ▗▄▖ ▗▄▄▖      ▗▄▄▖▗▄▄▄▖▗▄▄▖ ▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖     ▗▄▄▖▗▄▄▖ ▗▄▄▄▖▗▄▄▄ 
+▐▌   ▐▌ ▐▌▐▌     █  ▐▌ ▐▌▐▌   ▐▌       ▐▌   ▐▌ ▐▌▐▌ ▐▌    ▐▌     █  ▐▌ ▐▌▐▌   ▐▌     █      ▐▌   ▐▌ ▐▌▐▌   ▐▌  █
+ ▝▀▚▖▐▌ ▐▌▐▌     █  ▐▛▀▜▌▐▌    ▝▀▚▖    ▐▛▀▀▘▐▌ ▐▌▐▛▀▚▖     ▝▀▚▖  █  ▐▛▀▚▖▐▛▀▀▘▐▛▀▀▘  █      ▐▌   ▐▛▀▚▖▐▛▀▀▘▐▌  █
+▗▄▄▞▘▝▚▄▞▘▝▚▄▄▖▗▄█▄▖▐▌ ▐▌▐▙▄▄▖▗▄▄▞▘    ▐▌   ▝▚▄▞▘▐▌ ▐▌    ▗▄▄▞▘  █  ▐▌ ▐▌▐▙▄▄▖▐▙▄▄▖  █      ▝▚▄▄▖▐▌ ▐▌▐▙▄▄▖▐▙▄▄▀
+                                                                                     
+            """)
+            while True:
+                x_handle = input("Social Media Handle 1 (X username?)): ").strip()
+                if len(x_handle) > 100:
+                    print("Handle must be less than 100 characters. Please try again.")
+                    continue
+                break
+
+            while True:
+                github_username = input("Social Media Handle 2 (GitHub username?)): ").strip()
+                if len(github_username) > 100:
+                    print("Handle must be less than 100 characters. Please try again.")
+                    continue
+                break
+            print("""
+
+ ▗▄▄▖▗▖   ▗▄▄▄▖▗▄▄▄▖▗▄▄▖     ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄ ▗▄▄▄▖ ▗▄▄▖ ▗▄▖ ▗▄▄▖ 
+▐▌   ▐▌   ▐▌   ▐▌   ▐▌ ▐▌    ▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌  █  █  ▐▌   ▐▌ ▐▌▐▌ ▐▌
+ ▝▀▚▖▐▌   ▐▛▀▀▘▐▛▀▀▘▐▛▀▘     ▐▛▀▜▌▐▛▀▜▌▐▌ ▝▜▌▐▌  █  █  ▐▌   ▐▛▀▜▌▐▛▀▘ 
+▗▄▄▞▘▐▙▄▄▖▐▙▄▄▖▐▙▄▄▖▐▌       ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀▗▄█▄▖▝▚▄▄▖▐▌ ▐▌▐▌   
+                                                                                     
+            """)
+            while True:
+                try:
+                    hours_of_sleep = float(input("Enter hours of sleep (max 12 hours): "))
+                    if hours_of_sleep < 0 or hours_of_sleep > 12:
+                        print("Please enter a number between 0 and 12.")
+                        continue
+                    break
+                except ValueError:
+                    print("Please enter a valid number.")
             
             # Create GripStrengthData object
             grip_data_value = [
