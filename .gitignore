@@ -1,9 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
 env
-images
-grip_strength_terminal/images
-grip_strength_terminal/egg.info
-grip_strength_terminal/generated_art
-grip_strength_terminal/.env
-grip_strength_terminal/egg.info
-grip_strength_terminal.egg-info
-grip_strength_terminal/grip_strength_terminal.egg-info
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+.env
+data/
+generated_art/
+*.log
+error_logs.txt
+logs.csv
+
+# OS specific
+.DS_Store
+Thumbs.db

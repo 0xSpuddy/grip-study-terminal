@@ -26,7 +26,7 @@ def display_leaderboard():
     table.add_column("Total Strength", justify="right", style="magenta")
     table.add_column("Right Hand", justify="right")
     table.add_column("Left Hand", justify="right")
-    table.add_column("Gender", justify="center")
+    table.add_column("Data Set", justify="center")
     
     for i, entry in enumerate(leaderboard, 1):
         data_set = "M" if entry[0].lower() == "true" else "F"

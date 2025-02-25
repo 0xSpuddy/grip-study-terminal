@@ -1,6 +1,6 @@
 import time
 import asyncio
-from grip_strength_terminal.data_handler import log_data, read_data
+from grip_strength_terminal.data_handler import log_data, read_data, log_error
 from grip_strength_terminal.blockchain_interaction import GripStrengthReporter, GripStrengthData
 from grip_strength_terminal.leaderboard import display_leaderboard
 from grip_strength_terminal.spirit_animal import select_spirit_animal
@@ -183,27 +183,47 @@ async def async_main():
             )
             reporter = GripStrengthReporter([grip_data_value], endpoint, account)
             # Submit data to blockchain
-            tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
-            # transaction_hash = tip_tx[0]['tx_response']['txhash']
-            report_tx = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
-            report_tx_hash = report_tx[0]['tx_response']['txhash']
-            if not report_tx_hash:
-                print("Something went wrong with the report. Please try again.")
-                await asyncio.sleep(15)
-                continue
-            # Log data using report transaction hash
-            log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep, report_tx_hash)
-            
-            # Display spirit animal using tip transaction hash
-            if report_tx_hash:
+            try:
+                tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
+                report_tx = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
+                
+                if not report_tx or not report_tx[0] or 'tx_response' not in report_tx[0]:
+                    error_msg = "Transaction response was incomplete or invalid"
+                    log_error(error_msg, {"tip_tx": tip_tx, "report_tx": report_tx})
+                    print("The oracle has asked you to try again...")
+                    print("Please try again.")
+                    await asyncio.sleep(10)
+                    continue
+                
+                report_tx_hash = report_tx[0]['tx_response']['txhash']
+                
+                # Log data using report transaction hash
+                log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep, report_tx_hash)
+                
+                # Display spirit animal using tip transaction hash
                 spirit_animal = select_spirit_animal(report_tx_hash)
-                html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")
+                html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")  
                 print("\nThe Oracle has Accepted your Data!")
                 print("\nIn Exchange for your data, your spirit animal was revealed.")
                 print(f"Transaction hash: {report_tx_hash}")
                 await send_to_discord(grip_data_value, report_tx_hash, spirit_animal, html_path)
-            else:
-                print("Something went wrong On-Chain. Please try again. Maybe find Spuddy.")
+                
+            except (TypeError, Exception) as e:
+                error_msg = f"Error during transaction: {str(e)}"
+                tx_data = {
+                    "dataset": data_set,
+                    "right_hand": right_hand,
+                    "left_hand": left_hand,
+                    "x_handle": x_handle,
+                    "github_username": github_username,
+                    "hours_of_sleep": hours_of_sleep
+                }
+                log_error(error_msg, tx_data)
+                print("The oracle has asked you to try again...")
+                print(f"Error: {str(e)}")
+                print("Please try again.")
+                await asyncio.sleep(10)
+                continue
 
             await asyncio.sleep(15)
         
