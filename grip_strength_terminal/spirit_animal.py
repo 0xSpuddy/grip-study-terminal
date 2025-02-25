@@ -17,7 +17,7 @@ console = Console()
 
 # Define the selection lists
 ANIMALS = ['crab', 'clam', 'tortoise', 'cockatoo', 'jellyfish', 'pondo']
-SEEDS = list(range(11, 50))  # Creates a list of integers from 11 to 49
+SEEDS = list(range(25, 50))  # Creates a list of integers from 11 to 49
 ANIMAL_BACKGROUNDS = ['cityscape', 'beach', 'sunset', 'mountains']
 
 # Default ASCII art in case no files are found
@@ -76,8 +76,8 @@ def select_spirit_animal(transaction_hash):
     # Generate the prompt for the AI
     prompt = f"futuristic Pixelart of a anthropomorphic {animal} with large squeezing fists with background {background}, cyberpunk Macabre at night, Hard Light"
     
-    # Generate the ASCII art
-    ascii_art = generate_and_convert_to_ascii(prompt)
+    # Generate the ASCII art and pass the transaction hash
+    ascii_art = generate_and_convert_to_ascii(prompt, transaction_hash)
     print(ascii_art)
     
     # Create a formatted description of the spirit animal

@@ -2,3 +2,8 @@ env
 images
 grip_strength_terminal/images
 grip_strength_terminal/egg.info
+grip_strength_terminal/generated_art
+grip_strength_terminal/.env
+grip_strength_terminal/egg.info
+grip_strength_terminal.egg-info
+grip_strength_terminal/grip_strength_terminal.egg-info

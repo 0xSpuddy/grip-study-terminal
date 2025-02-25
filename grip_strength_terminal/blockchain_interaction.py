@@ -29,7 +29,7 @@ from telliot_feeds.utils.reporter_utils import is_online
 from grip_strength_terminal.loading_animation import LoadingSpiral
 
 logger = get_logger(__name__)
-
+    
 def clear_terminal():
     # Clear screen command for different operating systems
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -95,9 +95,9 @@ class GripStrengthReporter:
         try:
             # Pass the list directly as the value
             value = datafeed.query.value_type.encode(grip_data)
-            print(f"value: {value}")
-            print(f"grip_data: {[str(data) for data in grip_data]}")  # Debug print
-            await asyncio.sleep(5)
+            # print(f"value: {value}")
+            # print(f"grip_data: {[str(data) for data in grip_data]}")  # Debug print
+            # await asyncio.sleep(5)
             wallet = self.client.wallet(RawKey(self.account.local_account.key))
             msg = MsgSubmitValue(
                 creator=wallet.key.acc_address,
@@ -126,7 +126,7 @@ class GripStrengthReporter:
                 except Exception as e:
                     if "tx not found" in str(e):
                         loading.show_frame()
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(0.5)
                         continue
                     else:
                         loading.clear_terminal()  # Clear the animation on error
@@ -146,7 +146,7 @@ async def fetch_txs_info(self, response) -> Optional[dict]:
         except Exception as e:
             if "tx not found" in str(e):
                 print("reporting...")
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.5)
                 continue
             else:
                 raise e
