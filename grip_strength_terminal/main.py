@@ -16,6 +16,10 @@ import os
 from rich.console import Console
 from rich.table import Table
 from rich import box
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Get the directory of this file
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -174,9 +178,21 @@ async def async_main():
             q = EthDenverTester(challengeType="grip_strength_dynamometer")
             encoded_value = q.value_type.encode(grip_data_value)
             # print(f"submitValue (bytes): 0x{encoded_value.hex()}")
-            endpoint = RPCEndpoint(url="http://tellorlayer.com:1317", network="layertest-3")
-            account = ChainedAccount("telliot_layer")
-            account.unlock("asdf")
+            # Get RPC endpoint URL and account details from environment variables
+            rpc_url = os.getenv('TELLOR_RPC_URL', 'http://tellorlayer.com:1317')
+            account_name = os.getenv('TELLOR_ACCOUNT_NAME', 'telliot_layer')
+            account_password = os.getenv('TELLOR_ACCOUNT_PASSWORD')
+            
+            if not account_password:
+                error_msg = "Account password not found in environment variables"
+                log_error(error_msg)
+                print("Error: Missing account password in configuration")
+                await asyncio.sleep(2)
+                continue
+
+            endpoint = RPCEndpoint(url=rpc_url, network="layertest-3")
+            account = ChainedAccount(account_name)
+            account.unlock(account_password)
             datafeed = DataFeed(
                 query=EthDenverTester(challengeType="grip_strength_dynamometer"),
                 source=GripStrengthDataSource(encoded_value),
