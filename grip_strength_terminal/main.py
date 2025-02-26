@@ -219,9 +219,7 @@ async def async_main():
                 # Display spirit animal using tip transaction hash
                 spirit_animal = select_spirit_animal(report_tx_hash)
                 html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")  
-                print("\nThe Oracle has Accepted your Data!")
-                print("\nIn Exchange for your data, your spirit animal was revealed.")
-                print(f"Transaction hash: {report_tx_hash}")
+                # print(f"Transaction hash: {report_tx_hash}")
                 await send_to_discord(grip_data_value, report_tx_hash, spirit_animal, html_path)
                 
             except (TypeError, Exception) as e:

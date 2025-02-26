@@ -6,6 +6,7 @@ from rich.panel import Panel
 import ascii_magic
 from PIL import Image
 from .animal_engine import generate_and_convert_to_ascii
+from grip_strength_terminal.animals import ANIMALS
 
 # Get the directory of this file
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +17,8 @@ IMAGES_DIR = os.path.join(PROJECT_ROOT, 'images')
 console = Console()
 
 # Define the selection lists
-ANIMALS = ['crab', 'clam', 'tortoise', 'cockatoo', 'jellyfish', 'pondo']
+# ANIMALS = ['crab', 'clam', 'tortoise', 'cockatoo', 'jellyfish', 'pondo']
+ANIMALS_LIST = ANIMALS
 SEEDS = list(range(25, 50))  # Creates a list of integers from 11 to 49
 ANIMAL_BACKGROUNDS = ['cityscape', 'beach', 'sunset', 'mountains']
 
@@ -59,12 +61,12 @@ def get_random_selections(transaction_hash):
     hash3 = hashlib.sha256(f"{transaction_hash}-3".encode()).digest()
     
     # Convert each hash to an integer and use modulo to select from lists
-    animal_index = int.from_bytes(hash1[:8], 'big') % len(ANIMALS)
+    animal_index = int.from_bytes(hash1[:8], 'big') % len(ANIMALS_LIST)
     seed_index = int.from_bytes(hash2[:8], 'big') % len(SEEDS)
     background_index = int.from_bytes(hash3[:8], 'big') % len(ANIMAL_BACKGROUNDS)
     
     return (
-        ANIMALS[animal_index],
+        ANIMALS_LIST[animal_index],
         SEEDS[seed_index],
         ANIMAL_BACKGROUNDS[background_index]
     )
@@ -84,7 +86,7 @@ def select_spirit_animal(transaction_hash):
     description = f"Animal: {animal.title()}\nBackground: {background.title()}\nSeed: {seed}"
     
     console.print(Panel(
-        f"[bold cyan]Your Spirit Animal Details:[/bold cyan]\n\n{description}",
+        f"[bold cyan]In Exchange for your Grip Strength, the oracle has revealed a new spirit animal!:[/bold cyan]\n\n{description}",
         title="🐾 Spirit Animal Revealed 🐾",
         border_style="cyan",
         box=box.DOUBLE
