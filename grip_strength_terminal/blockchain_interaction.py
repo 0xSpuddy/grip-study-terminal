@@ -16,7 +16,7 @@ from chained_accounts import ChainedAccount
 
 from telliot_feeds.datafeed import DataFeed
 from telliot_feeds.feeds import CATALOG_FEEDS
-from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTester
+from telliot_feeds.queries.grip_dyno_challenge_query import EthDenver2025
 from telliot_feeds.reporters.layer.client import LCDClient
 from telliot_feeds.reporters.layer.msg_submit_value import MsgSubmitValue
 from telliot_feeds.reporters.layer.msg_tip import MsgTip
@@ -169,7 +169,7 @@ async def fetch_txs_info(self, response) -> Optional[dict]:
 async def tip_grip_query(client, account, datafeed):
     try:
         datafeed = DataFeed(
-            query=EthDenverTester(challengeType="grip_strength_dynamometer"),
+            query=EthDenver2025(challengeType="grip_strength_dynamometer"),
             source=GripStrengthDataSource(),
         )
         wallet = client.wallet(RawKey(account.local_account.key))

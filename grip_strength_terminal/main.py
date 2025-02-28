@@ -10,7 +10,7 @@ from telliot_core.apps.core import RPCEndpoint
 from chained_accounts import ChainedAccount
 from telliot_feeds.feeds import CATALOG_FEEDS
 from telliot_feeds.datafeed import DataFeed
-from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTester
+from telliot_feeds.queries.grip_dyno_challenge_query import EthDenver2025
 from grip_strength_terminal.blockchain_interaction import GripStrengthDataSource
 import os
 from rich.console import Console
@@ -175,7 +175,7 @@ async def async_main():
                 await asyncio.sleep(2)
                 continue
 
-            q = EthDenverTester(challengeType="grip_strength_dynamometer")
+            q = EthDenver2025(challengeType="grip_strength_dynamometer")
             encoded_value = q.value_type.encode(grip_data_value)
             # print(f"submitValue (bytes): 0x{encoded_value.hex()}")
             # Get RPC endpoint URL and account details from environment variables
@@ -194,7 +194,7 @@ async def async_main():
             account = ChainedAccount(account_name)
             account.unlock(account_password)
             datafeed = DataFeed(
-                query=EthDenverTester(challengeType="grip_strength_dynamometer"),
+                query=EthDenver2025(challengeType="grip_strength_dynamometer"),
                 source=GripStrengthDataSource(encoded_value),
             )
             reporter = GripStrengthReporter([grip_data_value], endpoint, account)
