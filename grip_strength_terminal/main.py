@@ -69,6 +69,8 @@ async def async_main():
             while True:
                 try:
                     right_hand = float(input("Enter right hand Reading (pounds): "))
+                    if right_hand == '':
+                        right_hand = 0
                     if right_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -86,6 +88,8 @@ async def async_main():
             while True:
                 try:
                     left_hand = float(input("Enter left hand Reading (pounds): "))
+                    if left_hand == '':
+                        left_hand = 0
                     if left_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -102,6 +106,8 @@ async def async_main():
             """)
             while True:
                 x_handle = input("Social Media Handle 1 (X username?)): ").strip()
+                if x_handle == '':
+                    x_handle = "none"
                 if len(x_handle) > 100:
                     print("Handle must be less than 100 characters. Please try again.")
                     continue
@@ -109,6 +115,8 @@ async def async_main():
 
             while True:
                 github_username = input("Social Media Handle 2 (GitHub username?)): ").strip()
+                if github_username == '':
+                    github_username = "none"
                 if len(github_username) > 100:
                     print("Handle must be less than 100 characters. Please try again.")
                     continue
@@ -124,6 +132,8 @@ async def async_main():
             while True:
                 try:
                     hours_of_sleep = float(input("Enter hours of sleep (max 12 hours): "))
+                    if hours_of_sleep == '':
+                        hours_of_sleep = 6
                     if hours_of_sleep < 0 or hours_of_sleep > 12:
                         print("Please enter a number between 0 and 12.")
                         continue
