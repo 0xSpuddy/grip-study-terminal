@@ -67,51 +67,62 @@ class GripStrengthReporter:
         self.gas = gas
         self.client = LCDClient(url=endpoint.url, chain_id=endpoint.network)
 
-    async def tip_grip_query(self, datafeed: DataFeed[Any]):
-        try:
-            wallet = self.client.wallet(RawKey(self.account.local_account.key))
-            tip_amount = Coin.from_str("10000loya")
-            msg = MsgTip(
-                tipper=wallet.key.acc_address,
-                query_data=datafeed.query.query_data,
-                amount=tip_amount.to_data(),
-            )
+    # async def tip_grip_query(self, datafeed: DataFeed[Any]):
+    #     try:
+    #         wallet = self.client.wallet(RawKey(self.account.local_account.key))
+    #         tip_amount = Coin.from_str("10000loya")
+    #         msg = MsgTip(
+    #             tipper=wallet.key.acc_address,
+    #             query_data=datafeed.query.query_data,
+    #             amount=tip_amount.to_data(),
+    #         )
 
-            options = CreateTxOptions(
-                msgs=[msg],
-                gas=self.gas,
-            )
+    #         options = CreateTxOptions(
+    #             msgs=[msg],
+    #             gas=self.gas,
+    #         )
 
-            tx = wallet.create_and_sign_tx(options)
-            response = self.client.tx.broadcast_async(tx)
-            return await self.fetch_tx_info(response), ResponseStatus()
+    #         tx = wallet.create_and_sign_tx(options)
+    #         response = self.client.tx.broadcast_async(tx)
+    #         return await self.fetch_tx_info(response), ResponseStatus()
 
-        except Exception as e:
-            msg = "Tip Tx Failed (Error)"
-            logger.error(f"{msg}: {str(e)}")
-            return None, error_status(msg, e=e, log=logger.error)
+    #     except Exception as e:
+    #         msg = "Tip Tx Failed (Error)"
+    #         logger.error(f"{msg}: {str(e)}")
+    #         return None, error_status(msg, e=e, log=logger.error)
 
     async def report_grip_query(self, datafeed: DataFeed[Any], grip_data: List):
         try:
             # Pass the list directly as the value
             value = datafeed.query.value_type.encode(grip_data)
-            # print(f"value: {value}")
-            # print(f"grip_data: {[str(data) for data in grip_data]}")  # Debug print
-            # await asyncio.sleep(5)
+
             wallet = self.client.wallet(RawKey(self.account.local_account.key))
-            msg = MsgSubmitValue(
+            
+            tip_amount = Coin.from_str("10000loya")
+            msg_tip = MsgTip(
+                tipper=wallet.key.acc_address,
+                query_data=datafeed.query.query_data,
+                amount=tip_amount.to_data(),
+            )
+
+            # options = CreateTxOptions(
+            #     msgs=[msg],
+            #     gas=self.gas,
+            # )
+            
+            msg_report = MsgSubmitValue(
                 creator=wallet.key.acc_address,
                 query_data=datafeed.query.query_data,
                 value=value.hex(),
             )
 
-            options = CreateTxOptions(msgs=[msg], gas=self.gas)
+            options = CreateTxOptions(msgs=[msg_tip, msg_report], gas=self.gas)
             tx = wallet.create_and_sign_tx(options)
             response = self.client.tx.broadcast_async(tx)
             return await self.fetch_tx_info(response), ResponseStatus()
 
         except Exception as e:
-            msg = "Report Tx Failed (Error)"
+            msg = "Report Txs Failed (Error)"
             print(msg, e.__str__())
             return None, error_status(msg, e=e, log=logger.error)
 

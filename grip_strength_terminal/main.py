@@ -45,7 +45,7 @@ async def async_main():
 ▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘    ▝▚▄▞▘▐▌ ▐▌    ▐▙█▟▌▝▚▄▞▘▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘
 
                   """)
-            data_set = input("Men's of Women's data set? (M/w): ").lower().strip()
+            data_set = input("Men's or Women's data set? (M/w): ").lower().strip()
             
             # Fuzzy matching for common variations
             male_options = ['m', 'male', 'man', '1', '']
@@ -68,7 +68,7 @@ async def async_main():
             """)
             while True:
                 try:
-                    right_hand = float(input("Enter right hand strength (pounds): "))
+                    right_hand = float(input("Enter right hand Reading (pounds): "))
                     if right_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -85,7 +85,7 @@ async def async_main():
             """)
             while True:
                 try:
-                    left_hand = float(input("Enter left hand strength (pounds): "))
+                    left_hand = float(input("Enter left hand Reading (pounds): "))
                     if left_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -200,16 +200,31 @@ async def async_main():
             reporter = GripStrengthReporter([grip_data_value], endpoint, account)
             # Submit data to blockchain
             try:
-                tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
+                # tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
                 report_tx = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
+                log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep)
                 
                 if not report_tx or not report_tx[0] or 'tx_response' not in report_tx[0]:
                     error_msg = "Transaction response was incomplete or invalid"
-                    log_error(error_msg, {"tip_tx": tip_tx, "report_tx": report_tx})
-                    print("The oracle has asked you to try again...")
-                    print("Please try again.")
-                    await asyncio.sleep(10)
-                    continue
+                    log_error(error_msg, {"report_tx": report_tx})
+                    print("\nThe oracle has asked you to try again...")
+                    print("\nOptions:")
+                    print("1. Press Enter to retry the transaction")
+                    print("2. Type 'back' to return to welcome screen")
+                    
+                    choice = input("\nYour choice: ").strip().lower()
+                    if choice == 'back':
+                        clear_terminal()
+                        continue  # This will return to the main menu
+                    elif choice == '':
+                        print("\nRetrying transaction...")
+                        await asyncio.sleep(2)
+                        continue  # This will retry the transaction
+                    else:
+                        print("\nInvalid choice. Returning to welcome screen...")
+                        await asyncio.sleep(2)
+                        clear_terminal()
+                        continue
                 
                 report_tx_hash = report_tx[0]['tx_response']['txhash']
                 
@@ -235,7 +250,7 @@ async def async_main():
                 log_error(error_msg, tx_data)
                 print("The oracle has asked you to try again...")
                 print(f"Error: {str(e)}")
-                print("Please try again.")
+                print("We won't worry about it too much, we'll just try again.")
                 await asyncio.sleep(10)
                 continue
 
