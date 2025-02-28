@@ -76,7 +76,7 @@ def select_spirit_animal(transaction_hash):
     animal, seed, background = get_random_selections(transaction_hash)
     
     # Generate the prompt for the AI
-    prompt = f"futuristic Pixelart of a anthropomorphic {animal} with large squeezing fists with background {background}, cyberpunk Macabre at night, Hard Light"
+    prompt = f"futuristic Pixelart of a anthropomorphic cyberpunk {animal} with large squeezing fists with background {background}, Macabre at night, Hard Light"
     
     # Generate the ASCII art and pass the transaction hash
     ascii_art = generate_and_convert_to_ascii(prompt, transaction_hash)
