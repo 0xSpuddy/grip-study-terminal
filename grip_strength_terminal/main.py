@@ -234,7 +234,9 @@ async def async_main():
                 # Display spirit animal using tip transaction hash
                 spirit_animal = select_spirit_animal(report_tx_hash)
                 html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")  
-                # print(f"Transaction hash: {report_tx_hash}")
+                print("\nThe Oracle has Accepted your Data!")
+                print("\nIn Exchange for your data, your spirit animal was revealed.")
+                print(f"Transaction hash: {report_tx_hash}")
                 await send_to_discord(grip_data_value, report_tx_hash, spirit_animal, html_path)
                 
             except (TypeError, Exception) as e:
@@ -248,11 +250,24 @@ async def async_main():
                     "hours_of_sleep": hours_of_sleep
                 }
                 log_error(error_msg, tx_data)
-                print("The oracle has asked you to try again...")
-                print(f"Error: {str(e)}")
-                print("We won't worry about it too much, we'll just try again.")
-                await asyncio.sleep(10)
-                continue
+                print("\nThe oracle has asked you to try again...")
+                print("\nOptions:")
+                print("1. Press Enter to retry the transaction")
+                print("2. Type 'back' to return to welcome screen")
+                
+                choice = input("\nYour choice: ").strip().lower()
+                if choice == 'back':
+                    clear_terminal()
+                    continue  # This will return to the main menu
+                elif choice == '':
+                    print("\nRetrying transaction...")
+                    await asyncio.sleep(2)
+                    continue  # This will retry the transaction
+                else:
+                    print("\nInvalid choice. Returning to welcome screen...")
+                    await asyncio.sleep(2)
+                    clear_terminal()
+                    continue
 
             await asyncio.sleep(15)
         
