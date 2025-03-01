@@ -1,5 +1,6 @@
 import os
 import hashlib
+import json
 from rich.console import Console
 from rich import box
 from rich.panel import Panel
@@ -13,6 +14,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Go up one level to the project root
 PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
 IMAGES_DIR = os.path.join(PROJECT_ROOT, 'images')
+ANIMAL_TRACKING_FILE = os.path.join(PROJECT_ROOT, 'data', 'revealed_animals.json')
 
 console = Console()
 
@@ -20,58 +22,63 @@ console = Console()
 # ANIMALS = ['crab', 'clam', 'tortoise', 'cockatoo', 'jellyfish', 'pondo']
 ANIMALS_LIST = ANIMALS
 SEEDS = list(range(25, 50))  # Creates a list of integers from 11 to 49
-ANIMAL_BACKGROUNDS = ['cityscape', 'beach', 'sunset', 'mountains']
+ANIMAL_BACKGROUNDS = ['cityscape', 'sunset', 'mountains']
 
-# Default ASCII art in case no files are found
-DEFAULT_ANIMAL = """
-             _.-````'-,_
-   _,.,_ ,-'`           `'-.,_
- /)     (\                   '``-.
-((      ) )                      `
- \)    (_/                        )
-  |       /)           '    ,'    / 
-  `\    ^'            '     (    /  ))
-    |      _/\ ,     /    ,,`\   (  "`
-     \Y,   |  \  \  | ````| / \_ 
-       `)_/    \  \  )    ( >  ( >
-                \( \(     |/   |/
-    mic & dwb  /_(/_(    /_(  /_(
-"""
 
-# def ensure_images_dir_exists():
-#     # Create images directory if it doesn't exist
-#     if not os.path.exists(IMAGES_DIR):
-#         os.makedirs(IMAGES_DIR)
-#         # Optionally create a default animal file
-#         with open(os.path.join(IMAGES_DIR, 'cat.txt'), 'w') as f:
-#             f.write(DEFAULT_ANIMAL)
-
-def image_to_ascii(image_path, columns=140):
+def image_to_ascii(image_path, columns=150):
     """Convert an image file to ASCII art"""
     output = ascii_magic.AsciiArt.from_image(image_path)
     ascii_str = output.to_ascii(columns=columns)
     # Escape the ASCII art to prevent Rich from interpreting backslashes
     return f"```\n{ascii_str}\n```"
 
+def load_animal_tracking():
+    """Load the animal tracking data from JSON file"""
+    if not os.path.exists(ANIMAL_TRACKING_FILE):
+        return {'revealed': {}, 'available': ANIMALS.copy()}
+    
+    with open(ANIMAL_TRACKING_FILE, 'r') as f:
+        data = json.load(f)
+        # If all animals have been revealed, reset the tracking
+        if not data['available']:
+            data = {'revealed': {}, 'available': ANIMALS.copy()}
+    return data
+
+def save_animal_tracking(data):
+    """Save the animal tracking data to JSON file"""
+    os.makedirs(os.path.dirname(ANIMAL_TRACKING_FILE), exist_ok=True)
+    with open(ANIMAL_TRACKING_FILE, 'w') as f:
+        json.dump(data, f)
+
 def get_random_selections(transaction_hash):
-    """Use transaction hash to generate three random selections"""
-    # Create three different hashes from the transaction hash
-    hash1 = hashlib.sha256(f"{transaction_hash}-1".encode()).digest()
-    hash2 = hashlib.sha256(f"{transaction_hash}-2".encode()).digest()
-    hash3 = hashlib.sha256(f"{transaction_hash}-3".encode()).digest()
+    """Get random selections based on transaction hash"""
+    tracking_data = load_animal_tracking()
+    available_animals = tracking_data['available']
     
-    # Convert each hash to an integer and use modulo to select from lists
-    animal_index = int.from_bytes(hash1[:8], 'big') % len(ANIMALS_LIST)
-    seed_index = int.from_bytes(hash2[:8], 'big') % len(SEEDS)
-    background_index = int.from_bytes(hash3[:8], 'big') % len(ANIMAL_BACKGROUNDS)
+    # If no animals are available, reset the tracking
+    if not available_animals:
+        tracking_data = {'revealed': {}, 'available': ANIMALS.copy()}
+        available_animals = tracking_data['available']
     
-    return (
-        ANIMALS_LIST[animal_index],
-        SEEDS[seed_index],
-        ANIMAL_BACKGROUNDS[background_index]
-    )
+    # Use transaction hash to select a random animal
+    hash_bytes = bytes.fromhex(transaction_hash[2:])  # Remove '0x' prefix
+    hash_int = int.from_bytes(hash_bytes, byteorder='big')
+    animal_index = hash_int % len(available_animals)
+    animal = available_animals.pop(animal_index)
+    
+    # Mark the animal as revealed with its transaction hash
+    tracking_data['revealed'][transaction_hash] = animal
+    save_animal_tracking(tracking_data)
+    
+    # Generate other random selections
+    seed = str(hash_int)[-8:]
+    background_index = (hash_int // len(ANIMALS)) % len(ANIMAL_BACKGROUNDS)
+    background = ANIMAL_BACKGROUNDS[background_index]
+    
+    return animal, seed, background
 
 def select_spirit_animal(transaction_hash):
+    """Select and display a spirit animal"""
     # Get random selections based on transaction hash
     animal, seed, background = get_random_selections(transaction_hash)
     

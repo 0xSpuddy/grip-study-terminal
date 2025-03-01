@@ -10,7 +10,7 @@ from telliot_core.apps.core import RPCEndpoint
 from chained_accounts import ChainedAccount
 from telliot_feeds.feeds import CATALOG_FEEDS
 from telliot_feeds.datafeed import DataFeed
-from telliot_feeds.queries.grip_dyno_challenge_query import EthDenver2025
+from telliot_feeds.queries.grip_dyno_challenge_query import EthDenverTester
 from grip_strength_terminal.blockchain_interaction import GripStrengthDataSource
 import os
 from rich.console import Console
@@ -55,7 +55,7 @@ async def async_main():
                 print("Please enter 'M' for male or 'F' for Womens.")
                 data_set = input("Enter M/f data set (M/f): ").lower().strip()
             
-            data_set = data_set in male_options  # Convert to boolean (True for male, False for Womens)
+            data_set = data_set in male_options
             # 1
             # clear_terminal()
             print("""
@@ -82,7 +82,7 @@ async def async_main():
 ▗▖   ▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖    ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄     ▗▄▄▖ ▗▄▄▄▖ ▗▄▖ ▗▄▄▄ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖
 ▐▌   ▐▌   ▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌  █    ▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌  █  █  ▐▛▚▖▐▌▐▌   
 ▐▌   ▐▛▀▀▘▐▛▀▀▘  █      ▐▛▀▜▌▐▛▀▜▌▐▌ ▝▜▌▐▌  █    ▐▛▀▚▖▐▛▀▀▘▐▛▀▜▌▐▌  █  █  ▐▌ ▝▜▌▐▌▝▜▌
-▐▙▄▄▖▐▙▄▄▖▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▝▚▄▄▖▐▌ ▐▌▐▌   
+▐▙▄▄▖▐▙▄▄▖▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   
                                                                                      
             """)
             while True:
@@ -185,11 +185,20 @@ async def async_main():
                 await asyncio.sleep(2)
                 continue
 
-            q = EthDenver2025(challengeType="grip_strength_dynamometer")
+            q = EthDenverTester(challengeType="grip_strength_dynamometer")
             encoded_value = q.value_type.encode(grip_data_value)
             # print(f"submitValue (bytes): 0x{encoded_value.hex()}")
-            # Get RPC endpoint URL and account details from environment variables
-            rpc_url = os.getenv('TELLOR_RPC_URL', 'http://tellorlayer.com:1317')
+            # Get RPC endpoint URLs and account details from environment variables
+            rpc_url = os.getenv('TELLOR_RPC_URL')
+            rpc_url_backup = os.getenv('TELLOR_RPC_URL_BACKUP')
+            
+            if not rpc_url or not rpc_url_backup:
+                error_msg = "Missing RPC URL configuration"
+                log_error(error_msg)
+                print("Error: Missing RPC configuration")
+                await asyncio.sleep(2)
+                continue
+
             account_name = os.getenv('TELLOR_ACCOUNT_NAME', 'telliot_layer')
             account_password = os.getenv('TELLOR_ACCOUNT_PASSWORD')
             
@@ -200,14 +209,19 @@ async def async_main():
                 await asyncio.sleep(2)
                 continue
 
-            endpoint = RPCEndpoint(url=rpc_url, network="layertest-3")
+            primary_endpoint = RPCEndpoint(url=rpc_url, network="layertest-3")
+            backup_endpoint = RPCEndpoint(url=rpc_url_backup, network="layertest-3")
             account = ChainedAccount(account_name)
             account.unlock(account_password)
             datafeed = DataFeed(
-                query=EthDenver2025(challengeType="grip_strength_dynamometer"),
+                query=EthDenverTester(challengeType="grip_strength_dynamometer"),
                 source=GripStrengthDataSource(encoded_value),
             )
-            reporter = GripStrengthReporter([grip_data_value], endpoint, account)
+            reporter = GripStrengthReporter(
+                grip_data=[grip_data_value], 
+                endpoint=primary_endpoint,
+                account=account
+            )
             # Submit data to blockchain
             while True:  # Loop for retrying transactions
                 try:
