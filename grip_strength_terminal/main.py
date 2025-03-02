@@ -18,6 +18,9 @@ from rich.table import Table
 from rich import box
 from dotenv import load_dotenv
 
+# Initialize Console
+console = Console()
+
 # Load environment variables
 load_dotenv()
 
@@ -32,7 +35,7 @@ def clear_terminal():
 async def async_main():
     while True:
         display_welcome_screen()
-        choice = input("Choose an option (1: Enter Data, 2: View Leaderboard): ")
+        choice = input("Choose an option (1: Enter Data, 2: View Leaderboard, 3: Generate Spirit Animal): ")
         
         if choice == '1' or choice == '':
             # Collect user data
@@ -153,7 +156,6 @@ async def async_main():
 
             # Clear terminal and show confirmation
             clear_terminal()
-            console = Console()
             
             # Get terminal height and calculate padding
             terminal_height = os.get_terminal_size().lines
@@ -178,7 +180,7 @@ async def async_main():
             
             # Wait for confirmation with timeout
             try:
-                await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input), timeout=10.0)
+                do_edit = await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input), timeout=10.0)
                 clear_terminal()
             except asyncio.TimeoutError:
                 console.print("[red]Timeout reached. Cancelling submission...[/red]", justify="center")
@@ -300,6 +302,24 @@ async def async_main():
         elif choice == '2':
             display_leaderboard()
         
+        elif choice == '3':
+            clear_terminal()
+            console.print("\n[cyan]🐾 Spirit Animal Generator 🐾[/cyan]", justify="center")
+            console.print("\n[yellow]Press Enter to generate your spirit animal...[/yellow]", justify="center")
+            
+            confirm = input()
+            if confirm == "":
+                # Generate a random transaction hash for spirit animal selection
+                random_hash = os.urandom(32).hex()
+                spirit_animal = select_spirit_animal(random_hash)
+                
+                console.print("\nPress Enter to return to the welcome screen...", justify="center")
+                input()
+                clear_terminal()
+            else:
+                clear_terminal()
+            continue
+
         else:
             print("Invalid choice. Please try again.")
 
