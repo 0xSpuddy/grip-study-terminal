@@ -99,6 +99,7 @@ class GripStrengthReporter:
                 options = CreateTxOptions(msgs=[msg_tip, msg_report], gas=self.gas)
                 tx = wallet.create_and_sign_tx(options)
                 response = self.client.tx.broadcast_async(tx)
+                await asyncio.sleep(3)
                 return await self.fetch_tx_info(response), ResponseStatus()
 
             except Exception as e:
