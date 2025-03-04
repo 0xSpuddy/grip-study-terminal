@@ -1,5 +1,0 @@
-telliot-feeds
-telliot-core
-rich
-termcolor
-pyfiglet
