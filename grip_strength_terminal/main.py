@@ -18,6 +18,9 @@ from rich.table import Table
 from rich import box
 from dotenv import load_dotenv
 
+# Initialize Console
+console = Console()
+
 # Load environment variables
 load_dotenv()
 
@@ -32,7 +35,7 @@ def clear_terminal():
 async def async_main():
     while True:
         display_welcome_screen()
-        choice = input("Choose an option (1: Enter Data, 2: View Leaderboard): ")
+        choice = input("Choose an option (1: Enter Data, 2: View Leaderboard, 3: Generate Spirit Animal): ")
         
         if choice == '1' or choice == '':
             # Collect user data
@@ -45,7 +48,7 @@ async def async_main():
 ▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘    ▝▚▄▞▘▐▌ ▐▌    ▐▙█▟▌▝▚▄▞▘▐▌  ▐▌▐▙▄▄▖▐▌  ▐▌▗▄▄▞▘
 
                   """)
-            data_set = input("Men's of Women's data set? (M/w): ").lower().strip()
+            data_set = input("Men's or Women's data set? (M/w): ").lower().strip()
             
             # Fuzzy matching for common variations
             male_options = ['m', 'male', 'man', '1', '']
@@ -55,7 +58,7 @@ async def async_main():
                 print("Please enter 'M' for male or 'F' for Womens.")
                 data_set = input("Enter M/f data set (M/f): ").lower().strip()
             
-            data_set = data_set in male_options  # Convert to boolean (True for male, False for Womens)
+            data_set = data_set in male_options
             # 1
             # clear_terminal()
             print("""
@@ -68,7 +71,9 @@ async def async_main():
             """)
             while True:
                 try:
-                    right_hand = float(input("Enter right hand strength (pounds): "))
+                    right_hand = float(input("Enter right hand Reading (pounds): "))
+                    if right_hand == '':
+                        right_hand = 0
                     if right_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -80,12 +85,14 @@ async def async_main():
 ▗▖   ▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖    ▗▖ ▗▖ ▗▄▖ ▗▖  ▗▖▗▄▄▄     ▗▄▄▖ ▗▄▄▄▖ ▗▄▖ ▗▄▄▄ ▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖
 ▐▌   ▐▌   ▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▛▚▖▐▌▐▌  █    ▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌  █  █  ▐▛▚▖▐▌▐▌   
 ▐▌   ▐▛▀▀▘▐▛▀▀▘  █      ▐▛▀▜▌▐▛▀▜▌▐▌ ▝▜▌▐▌  █    ▐▛▀▚▖▐▛▀▀▘▐▛▀▜▌▐▌  █  █  ▐▌ ▝▜▌▐▌▝▜▌
-▐▙▄▄▖▐▙▄▄▖▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▝▚▄▄▖▐▌ ▐▌▐▌   
+▐▙▄▄▖▐▙▄▄▖▐▌     █      ▐▌ ▐▌▐▌ ▐▌▐▌  ▐▌▐▙▄▄▀    ▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   
                                                                                      
             """)
             while True:
                 try:
-                    left_hand = float(input("Enter left hand strength (pounds): "))
+                    left_hand = float(input("Enter left hand Reading (pounds): "))
+                    if left_hand == '':
+                        left_hand = 0
                     if left_hand < 0:
                         print("Please enter a positive number.")
                         continue
@@ -102,6 +109,8 @@ async def async_main():
             """)
             while True:
                 x_handle = input("Social Media Handle 1 (X username?)): ").strip()
+                if x_handle == '':
+                    x_handle = "none"
                 if len(x_handle) > 100:
                     print("Handle must be less than 100 characters. Please try again.")
                     continue
@@ -109,6 +118,8 @@ async def async_main():
 
             while True:
                 github_username = input("Social Media Handle 2 (GitHub username?)): ").strip()
+                if github_username == '':
+                    github_username = "none"
                 if len(github_username) > 100:
                     print("Handle must be less than 100 characters. Please try again.")
                     continue
@@ -124,6 +135,8 @@ async def async_main():
             while True:
                 try:
                     hours_of_sleep = float(input("Enter hours of sleep (max 12 hours): "))
+                    if hours_of_sleep == '':
+                        hours_of_sleep = 6
                     if hours_of_sleep < 0 or hours_of_sleep > 12:
                         print("Please enter a number between 0 and 12.")
                         continue
@@ -143,7 +156,6 @@ async def async_main():
 
             # Clear terminal and show confirmation
             clear_terminal()
-            console = Console()
             
             # Get terminal height and calculate padding
             terminal_height = os.get_terminal_size().lines
@@ -168,7 +180,7 @@ async def async_main():
             
             # Wait for confirmation with timeout
             try:
-                await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input), timeout=10.0)
+                do_edit = await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input), timeout=10.0)
                 clear_terminal()
             except asyncio.TimeoutError:
                 console.print("[red]Timeout reached. Cancelling submission...[/red]", justify="center")
@@ -178,8 +190,17 @@ async def async_main():
             q = EthDenverTester(challengeType="grip_strength_dynamometer")
             encoded_value = q.value_type.encode(grip_data_value)
             # print(f"submitValue (bytes): 0x{encoded_value.hex()}")
-            # Get RPC endpoint URL and account details from environment variables
-            rpc_url = os.getenv('TELLOR_RPC_URL', 'http://tellorlayer.com:1317')
+            # Get RPC endpoint URLs and account details from environment variables
+            rpc_url = os.getenv('TELLOR_RPC_URL')
+            rpc_url_backup = os.getenv('TELLOR_RPC_URL_BACKUP')
+            
+            if not rpc_url or not rpc_url_backup:
+                error_msg = "Missing RPC URL configuration"
+                log_error(error_msg)
+                print("Error: Missing RPC configuration")
+                await asyncio.sleep(2)
+                continue
+
             account_name = os.getenv('TELLOR_ACCOUNT_NAME', 'telliot_layer')
             account_password = os.getenv('TELLOR_ACCOUNT_PASSWORD')
             
@@ -190,60 +211,113 @@ async def async_main():
                 await asyncio.sleep(2)
                 continue
 
-            endpoint = RPCEndpoint(url=rpc_url, network="layertest-3")
+            primary_endpoint = RPCEndpoint(url=rpc_url, network="layertest-3")
+            backup_endpoint = RPCEndpoint(url=rpc_url_backup, network="layertest-3")
             account = ChainedAccount(account_name)
             account.unlock(account_password)
             datafeed = DataFeed(
                 query=EthDenverTester(challengeType="grip_strength_dynamometer"),
                 source=GripStrengthDataSource(encoded_value),
             )
-            reporter = GripStrengthReporter([grip_data_value], endpoint, account)
+            reporter = GripStrengthReporter(
+                grip_data=[grip_data_value], 
+                endpoint=primary_endpoint,
+                account=account
+            )
             # Submit data to blockchain
-            try:
-                tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
-                report_tx = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
-                
-                if not report_tx or not report_tx[0] or 'tx_response' not in report_tx[0]:
-                    error_msg = "Transaction response was incomplete or invalid"
-                    log_error(error_msg, {"tip_tx": tip_tx, "report_tx": report_tx})
-                    print("The oracle has asked you to try again...")
-                    print("Please try again.")
-                    await asyncio.sleep(10)
-                    continue
-                
-                report_tx_hash = report_tx[0]['tx_response']['txhash']
-                
-                # Log data using report transaction hash
-                log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep, report_tx_hash)
-                
-                # Display spirit animal using tip transaction hash
-                spirit_animal = select_spirit_animal(report_tx_hash)
-                html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")  
-                # print(f"Transaction hash: {report_tx_hash}")
-                await send_to_discord(grip_data_value, report_tx_hash, spirit_animal, html_path)
-                
-            except (TypeError, Exception) as e:
-                error_msg = f"Error during transaction: {str(e)}"
-                tx_data = {
-                    "dataset": data_set,
-                    "right_hand": right_hand,
-                    "left_hand": left_hand,
-                    "x_handle": x_handle,
-                    "github_username": github_username,
-                    "hours_of_sleep": hours_of_sleep
-                }
-                log_error(error_msg, tx_data)
-                print("The oracle has asked you to try again...")
-                print(f"Error: {str(e)}")
-                print("Please try again.")
-                await asyncio.sleep(10)
-                continue
+            while True:  # Loop for retrying transactions
+                try:
+                    # tip_tx = await reporter.tip_grip_query(datafeed=datafeed)
+                    report_tx = await reporter.report_grip_query(datafeed=datafeed, grip_data=grip_data_value)
+                    
+                    if not report_tx or not report_tx[0] or 'tx_response' not in report_tx[0]:
+                        error_msg = "Transaction response was incomplete or invalid"
+                        log_error(error_msg, {"report_tx": report_tx})
+                        print("\nThe oracle has asked you to try again...")
+                        print("\nOptions:")
+                        print("1. Press Enter to retry the transaction")
+                        print("2. Type 'back' to return to welcome screen")
+                        
+                        choice = input("\nYour choice: ").strip().lower()
+                        if choice == 'back':
+                            clear_terminal()
+                            break  # Exit the retry loop and return to main menu
+                        elif choice == '':
+                            print("\nRetrying transaction...")
+                            await asyncio.sleep(2)
+                            continue  # Retry the transaction
+                        else:
+                            print("\nInvalid choice. Returning to welcome screen...")
+                            await asyncio.sleep(2)
+                            clear_terminal()
+                            break  # Exit the retry loop and return to main menu
+                    
+                    # If we get here, the transaction was successful
+                    report_tx_hash = report_tx[0]['tx_response']['txhash']
+                    
+                    # Log data using report transaction hash
+                    log_data(data_set, right_hand, left_hand, x_handle, github_username, hours_of_sleep, report_tx_hash)
+                    
+                    # Display spirit animal using tip transaction hash
+                    spirit_animal = select_spirit_animal(report_tx_hash)
+                    html_path = os.path.join(PROJECT_ROOT, 'generated_art', 'html', f"{report_tx_hash[:10]}.html")  
+                    print(f"Transaction hash: {report_tx_hash}")
+                    await send_to_discord(grip_data_value, report_tx_hash, spirit_animal, html_path)
+                    break  # Exit the retry loop after success
+                    
+                except (TypeError, Exception) as e:
+                    error_msg = f"Error during transaction: {str(e)}"
+                    tx_data = {
+                        "dataset": data_set,
+                        "right_hand": right_hand,
+                        "left_hand": left_hand,
+                        "x_handle": x_handle,
+                        "github_username": github_username,
+                        "hours_of_sleep": hours_of_sleep
+                    }
+                    log_error(error_msg, tx_data)
+                    print("\nThe oracle has asked you to try again...")
+                    print("\nOptions:")
+                    print("1. Press Enter to retry the transaction")
+                    print("2. Type 'back' to return to welcome screen")
+                    
+                    choice = input("\nYour choice: ").strip().lower()
+                    if choice == 'back':
+                        clear_terminal()
+                        break  # Exit the retry loop and return to main menu
+                    elif choice == '':
+                        print("\nRetrying transaction...")
+                        await asyncio.sleep(2)
+                        continue  # Retry the transaction
+                    else:
+                        print("\nInvalid choice. Returning to welcome screen...")
+                        await asyncio.sleep(2)
+                        clear_terminal()
+                        break  # Exit the retry loop and return to main menu
 
-            await asyncio.sleep(15)
-        
+            continue  # Continue to main menu after breaking from retry loop
+
         elif choice == '2':
             display_leaderboard()
         
+        elif choice == '3':
+            clear_terminal()
+            console.print("\n[cyan]🐾 Spirit Animal Generator 🐾[/cyan]", justify="center")
+            console.print("\n[yellow]Press Enter to generate your spirit animal...[/yellow]", justify="center")
+            
+            confirm = input()
+            if confirm == "":
+                # Generate a random transaction hash for spirit animal selection
+                random_hash = os.urandom(32).hex()
+                spirit_animal = select_spirit_animal(random_hash)
+                
+                console.print("\nPress Enter to return to the welcome screen...", justify="center")
+                input()
+                clear_terminal()
+            else:
+                clear_terminal()
+            continue
+
         else:
             print("Invalid choice. Please try again.")
 

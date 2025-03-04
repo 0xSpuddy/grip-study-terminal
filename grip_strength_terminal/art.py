@@ -8,7 +8,7 @@ console = Console()
 
 def display_welcome_screen():
     # Clear the terminal screen
-    os.system('cls' if os.name == 'nt' else 'clear')  # 'cls' for Windows, 'clear' for Unix/Linux/MacOS
+    # os.system('cls' if os.name == 'nt' else 'clear')  # 'cls' for Windows, 'clear' for Unix/Linux/MacOS
     
     # Create a fancy title
     title = pyfiglet.figlet_format("TELLOR LONGEVITY CHALLENGE", font="standard")

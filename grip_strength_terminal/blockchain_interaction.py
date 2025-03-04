@@ -21,7 +21,6 @@ from telliot_feeds.reporters.layer.client import LCDClient
 from telliot_feeds.reporters.layer.msg_submit_value import MsgSubmitValue
 from telliot_feeds.reporters.layer.msg_tip import MsgTip
 from telliot_feeds.reporters.layer.raw_key import RawKey
-from telliot_feeds.sources.manual.grip_dyno_manual_source import gripDynoManualSource
 from telliot_feeds.datasource import DataSource
 from telliot_feeds.utils.log import get_logger
 from telliot_feeds.utils.query_search_utils import feed_from_catalog_feeds
@@ -63,55 +62,59 @@ class GripStrengthReporter:
         gas: str = "auto",
     ) -> None:
         self.account = account
-        self.endpoint = endpoint
+        self.primary_endpoint = endpoint
+        self.backup_endpoint = RPCEndpoint(
+            url=os.getenv('TELLOR_RPC_URL_BACKUP', 'http://tellorlayer.com:1317'),
+            network="layertest-3"
+        )
         self.gas = gas
-        self.client = LCDClient(url=endpoint.url, chain_id=endpoint.network)
+        self.current_endpoint = self.primary_endpoint
+        self.client = LCDClient(url=self.current_endpoint.url, chain_id=self.current_endpoint.network)
 
-    async def tip_grip_query(self, datafeed: DataFeed[Any]):
-        try:
-            wallet = self.client.wallet(RawKey(self.account.local_account.key))
-            tip_amount = Coin.from_str("10000loya")
-            msg = MsgTip(
-                tipper=wallet.key.acc_address,
-                query_data=datafeed.query.query_data,
-                amount=tip_amount.to_data(),
-            )
-
-            options = CreateTxOptions(
-                msgs=[msg],
-                gas=self.gas,
-            )
-
-            tx = wallet.create_and_sign_tx(options)
-            response = self.client.tx.broadcast_async(tx)
-            return await self.fetch_tx_info(response), ResponseStatus()
-
-        except Exception as e:
-            msg = "Tip Tx Failed (Error)"
-            logger.error(f"{msg}: {str(e)}")
-            return None, error_status(msg, e=e, log=logger.error)
+    async def switch_to_backup(self):
+        """Switch to backup endpoint and create new client"""
+        self.current_endpoint = self.backup_endpoint
+        self.client = LCDClient(url=self.backup_endpoint.url, chain_id=self.backup_endpoint.network)
+        print("\nSwitching to backup RPC endpoint...")
 
     async def report_grip_query(self, datafeed: DataFeed[Any], grip_data: List):
         try:
-            # Pass the list directly as the value
-            value = datafeed.query.value_type.encode(grip_data)
-            # print(f"value: {value}")
-            # print(f"grip_data: {[str(data) for data in grip_data]}")  # Debug print
-            # await asyncio.sleep(5)
-            wallet = self.client.wallet(RawKey(self.account.local_account.key))
-            msg = MsgSubmitValue(
-                creator=wallet.key.acc_address,
-                query_data=datafeed.query.query_data,
-                value=value.hex(),
-            )
+            try:
+                value = datafeed.query.value_type.encode(grip_data)
+                wallet = self.client.wallet(RawKey(self.account.local_account.key))
+                
+                tip_amount = Coin.from_str("10000loya")
+                msg_tip = MsgTip(
+                    tipper=wallet.key.acc_address,
+                    query_data=datafeed.query.query_data,
+                    amount=tip_amount.to_data(),
+                )
 
-            options = CreateTxOptions(msgs=[msg], gas=self.gas)
-            tx = wallet.create_and_sign_tx(options)
-            response = self.client.tx.broadcast_async(tx)
-            return await self.fetch_tx_info(response), ResponseStatus()
+                msg_report = MsgSubmitValue(
+                    creator=wallet.key.acc_address,
+                    query_data=datafeed.query.query_data,
+                    value=value.hex(),
+                )
+
+                options = CreateTxOptions(msgs=[msg_tip, msg_report], gas=self.gas)
+                tx = wallet.create_and_sign_tx(options)
+                response = self.client.tx.broadcast_async(tx)
+                await asyncio.sleep(3)
+                return await self.fetch_tx_info(response), ResponseStatus()
+
+            except Exception as e:
+                # If primary fails and we haven't tried backup yet
+                if self.current_endpoint == self.primary_endpoint:
+                    print(f"\nPrimary RPC failed: {str(e)}")
+                    await self.switch_to_backup()
+                    # Retry with backup endpoint
+                    return await self.report_grip_query(datafeed, grip_data)
+                else:
+                    # Both endpoints failed
+                    raise Exception("Both primary and backup RPC endpoints failed")
 
         except Exception as e:
-            msg = "Report Tx Failed (Error)"
+            msg = "Report Txs Failed (Error)"
             print(msg, e.__str__())
             return None, error_status(msg, e=e, log=logger.error)
 

@@ -34,11 +34,13 @@ def log_error(error_message, tx_data=None):
             file.write(f"Transaction Data: {tx_data}\n")
         file.write("-" * 50 + "\n")
 
-def log_data(m_f, right_hand, left_hand, twitter, github, sleep_hours, transaction_hash):
+def log_data(m_f, right_hand, left_hand, twitter, github, sleep_hours, transaction_hash=None):
     ensure_data_dir_exists()
     # Convert to Wei-like precision before storing
     right_hand_wei = int(float(right_hand) * (10 ** 18))
     left_hand_wei = int(float(left_hand) * (10 ** 18))
+    if not transaction_hash:
+        transaction_hash = "0x0000000000000000000000000000000000000000000000000000000000000000"
     
     with open(LOG_FILE, mode='a', newline='') as file:
         writer = csv.writer(file)
